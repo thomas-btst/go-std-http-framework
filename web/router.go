@@ -25,6 +25,14 @@ func (r *Router) AddRoute(method HTTPMethod, path string, handler HandlerFunc) {
 	r.HandleFunc(pattern, adapter(handler))
 }
 
+func (r *Router) Group(prefix string, register func(subRouter *Router)) {
+	subRouter := &Router{ServeMux: http.NewServeMux()}
+
+	register(subRouter)
+
+	r.Handle(prefix+"/", http.StripPrefix(prefix, subRouter))
+}
+
 func (r *Router) ListenAndServe(addr string) error {
 	srv := &http.Server{
 		Addr:    addr,

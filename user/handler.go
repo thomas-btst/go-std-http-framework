@@ -23,12 +23,14 @@ func NewHandler(service *Service) *Handler {
 	}
 }
 
-func (h *Handler) RegisterRoutes(r *web.Router) {
-	r.AddRoute(web.GET, "/users/{id}", h.handleGet)
-	r.AddRoute(web.GET, "/users", h.handleList)
-	r.AddRoute(web.POST, "/users", h.handlePost)
-	r.AddRoute(web.PUT, "/users/{id}", h.handleUpdate)
-	r.AddRoute(web.DELETE, "/users/{id}", h.handleDelete)
+func (h *Handler) RegisterRoutes(router *web.Router) {
+	router.Group("/users", func(r *web.Router) {
+		r.AddRoute(web.GET, "/", h.handleList)
+		r.AddRoute(web.GET, "/{id}", h.handleGet)
+		r.AddRoute(web.POST, "/", h.handlePost)
+		r.AddRoute(web.PUT, "/{id}", h.handleUpdate)
+		r.AddRoute(web.DELETE, "/{id}", h.handleDelete)
+	})
 }
 
 func writeUserNotFoundError(c *web.Context, id int) {
