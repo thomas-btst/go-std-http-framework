@@ -11,6 +11,7 @@ import (
 func main() {
 	r := web.NewRouter()
 	r.UseGlobal(middleware.Logging)
+	r.Use(middleware.ErrorHandler)
 
 	userStore := user.NewMemoryStore()
 	userService := user.NewService(userStore)

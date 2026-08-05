@@ -54,8 +54,9 @@ func (r *Router) Group(prefix string, register func(subRouter *Router)) {
 }
 
 func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
-	lastHandler := func(c *Context) {
+	lastHandler := func(c *Context) error {
 		r.mux.ServeHTTP(c.Response, c.Request)
+		return nil
 	}
 
 	for _, m := range slices.Backward(r.globalMiddlewares) {

@@ -9,10 +9,10 @@ import (
 )
 
 func Logging(next web.HandlerFunc) web.HandlerFunc {
-	return func(c *web.Context) {
+	return func(c *web.Context) error {
 		start := time.Now()
 
-		next(c)
+		err := next(c)
 
 		slog.Info("HTTP Request",
 			slog.String("method", c.Method),
@@ -20,5 +20,7 @@ func Logging(next web.HandlerFunc) web.HandlerFunc {
 			slog.Int("status", c.Response.StatusCode),
 			slog.Duration("duration", time.Since(start)),
 		)
+
+		return err
 	}
 }

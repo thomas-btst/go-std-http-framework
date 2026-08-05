@@ -3,7 +3,7 @@ package web
 import (
 	"bytes"
 	"encoding/json"
-	"log/slog"
+	"fmt"
 	"net/http"
 )
 
@@ -24,26 +24,22 @@ func (r *Response) WriteHeader(status int) {
 	r.ResponseWriter.WriteHeader(status)
 }
 
-func (r *Response) WriteJSON(status int, data any) {
+func (r *Response) WriteJSON(status int, data any) error {
 	var buf bytes.Buffer
 	if err := json.NewEncoder(&buf).Encode(data); err != nil {
-		r.WriteHeader(http.StatusInternalServerError)
-		slog.Error("Error during JSON response serialization", slog.Any("err", err))
-		return
+		return fmt.Errorf("Error during JSON response serialization: %w", err)
 	}
 
 	r.Header().Set("Content-Type", "application/json")
 	r.WriteHeader(status)
 	_, err := buf.WriteTo(r)
 	if err != nil {
-		slog.Error("Error writing JSON response", slog.Any("err", err))
+		return fmt.Errorf("Error writing JSON response: %w", err)
 	}
+
+	return nil
 }
 
-func (r *Response) WriteError(status int, message string) {
-	r.WriteJSON(status, map[string]string{"error": message})
-}
-
-func (r *Response) WriteInternalError() {
-	r.WriteError(http.StatusInternalServerError, errMsgInternalError)
+func (r *Response) WriteError(status int, message string) error {
+	return r.WriteJSON(status, map[string]string{"error": message})
 }

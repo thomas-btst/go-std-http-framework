@@ -11,8 +11,7 @@ import (
 )
 
 const (
-	errMsgInvalidBody   = "Request body is not valid"
-	errMsgInternalError = "Internal server error"
+	errMsgInvalidBody = "Request body is not valid"
 
 	errFmtInvalidPathInt = "Path parameter '%s' must be a valid integer"
 )
@@ -32,35 +31,32 @@ func newContext(r *http.Request, w http.ResponseWriter) *Context {
 }
 
 func (c *Context) Validate(request any) error {
-	return validate.Struct(request)
-}
-
-func (c *Context) MustValidate(request any) bool {
-	err := c.Validate(request)
-	if err != nil {
-		if _, ok := errors.AsType[validator.ValidationErrors](err); ok {
-			c.Response.WriteError(http.StatusBadRequest, errMsgInvalidBody) // TODO: display a real error
-		} else {
-			c.Response.WriteInternalError()
-		}
-		return false
+	err := validate.Struct(request)
+	if err == nil {
+		return nil
 	}
 
-	return true
+	if _, ok := errors.AsType[validator.ValidationErrors](err); ok {
+		return NewHTTPErrorWithErr(http.StatusBadRequest,
+			errMsgInvalidBody,
+			err,
+		) // TODO: display a real error
+	}
+
+	return err
 }
 
 func (c *Context) Body(request any) error {
-	return json.NewDecoder(c.Request.Body).Decode(request)
-}
-
-func (c *Context) MustBody(request any) bool {
-	err := c.Body(request)
+	err := json.NewDecoder(c.Request.Body).Decode(request)
 	if err != nil {
-		c.Response.WriteError(http.StatusBadRequest, errMsgInvalidBody)
-		return false
+		return NewHTTPErrorWithErr(
+			http.StatusBadRequest,
+			errMsgInvalidBody,
+			err,
+		)
 	}
 
-	return true
+	return nil
 }
 
 func (c *Context) Bind(request any) error {
@@ -71,26 +67,21 @@ func (c *Context) Bind(request any) error {
 	return c.Validate(request)
 }
 
-func (c *Context) MustBind(request any) bool {
-	return c.MustBody(request) && c.MustValidate(request)
-}
-
 func (c *Context) PathString(name string) string {
 	return c.PathValue(name)
 }
 
 func (c *Context) PathInt(name string) (int, error) {
-	strValue := c.PathString(name)
-	return strconv.Atoi(strValue)
-}
+	strVal := c.PathString(name)
 
-func (c *Context) MustPathInt(name string) (int, bool) {
-	value, err := c.PathInt(name)
+	intVal, err := strconv.Atoi(strVal)
 	if err != nil {
-		c.Response.WriteError(http.StatusBadRequest,
-			fmt.Sprintf(errFmtInvalidPathInt, name))
-		return value, false
+		return 0, NewHTTPErrorWithErr(
+			http.StatusBadRequest,
+			fmt.Sprintf(errFmtInvalidPathInt, name),
+			err,
+		)
 	}
 
-	return value, true
+	return intVal, nil
 }
