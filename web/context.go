@@ -24,10 +24,10 @@ type Context struct {
 	Response *Response
 }
 
-func NewContext(r *http.Request, w http.ResponseWriter) *Context {
+func newContext(r *http.Request, w http.ResponseWriter) *Context {
 	return &Context{
 		Request:  r,
-		Response: NewResponse(w),
+		Response: newResponse(w),
 	}
 }
 

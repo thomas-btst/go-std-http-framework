@@ -12,7 +12,7 @@ type Response struct {
 	StatusCode int
 }
 
-func NewResponse(w http.ResponseWriter) *Response {
+func newResponse(w http.ResponseWriter) *Response {
 	return &Response{
 		ResponseWriter: w,
 		StatusCode:     http.StatusOK,

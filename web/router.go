@@ -16,13 +16,13 @@ import (
 type Middleware func(HandlerFunc) HandlerFunc
 
 type Router struct {
-	*http.ServeMux
+	mux               *http.ServeMux
 	routeMiddlewares  []Middleware
 	globalMiddlewares []Middleware
 }
 
 func NewRouter() *Router {
-	return &Router{ServeMux: http.NewServeMux()}
+	return &Router{mux: http.NewServeMux()}
 }
 
 func (r *Router) Use(middleware ...Middleware) {
@@ -39,23 +39,23 @@ func (r *Router) AddRoute(method HTTPMethod, path string, handler HandlerFunc) {
 	for _, m := range slices.Backward(r.routeMiddlewares) {
 		lastHandler = m(lastHandler)
 	}
-	r.HandleFunc(pattern, adapter(lastHandler))
+	r.mux.HandleFunc(pattern, adapter(lastHandler))
 }
 
 func (r *Router) Group(prefix string, register func(subRouter *Router)) {
 	subRouter := &Router{
-		ServeMux:         http.NewServeMux(),
+		mux:              http.NewServeMux(),
 		routeMiddlewares: append([]Middleware(nil), r.routeMiddlewares...),
 	}
 
 	register(subRouter)
 
-	r.Handle(prefix+"/", http.StripPrefix(prefix, subRouter))
+	r.mux.Handle(prefix+"/", http.StripPrefix(prefix, subRouter))
 }
 
 func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	lastHandler := func(c *Context) {
-		r.ServeMux.ServeHTTP(c.Response, c.Request)
+		r.mux.ServeHTTP(c.Response, c.Request)
 	}
 
 	for _, m := range slices.Backward(r.globalMiddlewares) {
