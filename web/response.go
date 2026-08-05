@@ -9,6 +9,19 @@ import (
 
 type Response struct {
 	http.ResponseWriter
+	StatusCode int
+}
+
+func NewResponse(w http.ResponseWriter) *Response {
+	return &Response{
+		ResponseWriter: w,
+		StatusCode:     http.StatusOK,
+	}
+}
+
+func (r *Response) WriteHeader(status int) {
+	r.StatusCode = status
+	r.ResponseWriter.WriteHeader(status)
 }
 
 func (r *Response) WriteJSON(status int, data any) {

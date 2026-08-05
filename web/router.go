@@ -8,12 +8,16 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"slices"
 	"syscall"
 	"time"
 )
 
+type Middleware func(HandlerFunc) HandlerFunc
+
 type Router struct {
 	*http.ServeMux
+	middlewares []Middleware
 }
 
 func NewRouter() *Router {
@@ -22,11 +26,22 @@ func NewRouter() *Router {
 
 func (r *Router) AddRoute(method HTTPMethod, path string, handler HandlerFunc) {
 	pattern := string(method) + " " + path
-	r.HandleFunc(pattern, adapter(handler))
+	lastHandler := handler
+	for _, v := range slices.Backward(r.middlewares) {
+		lastHandler = v(lastHandler)
+	}
+	r.HandleFunc(pattern, adapter(lastHandler))
+}
+
+func (r *Router) Use(middleware ...Middleware) {
+	r.middlewares = append(r.middlewares, middleware...)
 }
 
 func (r *Router) Group(prefix string, register func(subRouter *Router)) {
-	subRouter := &Router{ServeMux: http.NewServeMux()}
+	subRouter := &Router{
+		ServeMux:    http.NewServeMux(),
+		middlewares: append([]Middleware(nil), r.middlewares...),
+	}
 
 	register(subRouter)
 

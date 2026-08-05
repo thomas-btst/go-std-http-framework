@@ -5,10 +5,12 @@ import (
 
 	"standard/user"
 	"standard/web"
+	"standard/web/middleware"
 )
 
 func main() {
 	r := web.NewRouter()
+	r.Use(middleware.Logging)
 
 	userStore := user.NewMemoryStore()
 	userService := user.NewService(userStore)

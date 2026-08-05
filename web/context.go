@@ -24,6 +24,13 @@ type Context struct {
 	Response *Response
 }
 
+func NewContext(r *http.Request, w http.ResponseWriter) *Context {
+	return &Context{
+		Request:  r,
+		Response: NewResponse(w),
+	}
+}
+
 func (c *Context) Validate(request any) error {
 	return validate.Struct(request)
 }
