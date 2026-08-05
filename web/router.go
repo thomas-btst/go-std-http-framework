@@ -17,35 +17,52 @@ type Middleware func(HandlerFunc) HandlerFunc
 
 type Router struct {
 	*http.ServeMux
-	middlewares []Middleware
+	routeMiddlewares  []Middleware
+	globalMiddlewares []Middleware
 }
 
 func NewRouter() *Router {
 	return &Router{ServeMux: http.NewServeMux()}
 }
 
+func (r *Router) Use(middleware ...Middleware) {
+	r.routeMiddlewares = append(r.routeMiddlewares, middleware...)
+}
+
+func (r *Router) UseGlobal(middleware ...Middleware) {
+	r.globalMiddlewares = append(r.globalMiddlewares, middleware...)
+}
+
 func (r *Router) AddRoute(method HTTPMethod, path string, handler HandlerFunc) {
 	pattern := string(method) + " " + path
 	lastHandler := handler
-	for _, v := range slices.Backward(r.middlewares) {
-		lastHandler = v(lastHandler)
+	for _, m := range slices.Backward(r.routeMiddlewares) {
+		lastHandler = m(lastHandler)
 	}
 	r.HandleFunc(pattern, adapter(lastHandler))
 }
 
-func (r *Router) Use(middleware ...Middleware) {
-	r.middlewares = append(r.middlewares, middleware...)
-}
-
 func (r *Router) Group(prefix string, register func(subRouter *Router)) {
 	subRouter := &Router{
-		ServeMux:    http.NewServeMux(),
-		middlewares: append([]Middleware(nil), r.middlewares...),
+		ServeMux:         http.NewServeMux(),
+		routeMiddlewares: append([]Middleware(nil), r.routeMiddlewares...),
 	}
 
 	register(subRouter)
 
 	r.Handle(prefix+"/", http.StripPrefix(prefix, subRouter))
+}
+
+func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+	lastHandler := func(c *Context) {
+		r.ServeMux.ServeHTTP(c.Response, c.Request)
+	}
+
+	for _, m := range slices.Backward(r.globalMiddlewares) {
+		lastHandler = m(lastHandler)
+	}
+
+	adapter(lastHandler)(w, req)
 }
 
 func (r *Router) ListenAndServe(addr string) error {

@@ -10,7 +10,7 @@ import (
 
 func main() {
 	r := web.NewRouter()
-	r.Use(middleware.Logging)
+	r.UseGlobal(middleware.Logging)
 
 	userStore := user.NewMemoryStore()
 	userService := user.NewService(userStore)
