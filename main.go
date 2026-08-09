@@ -8,9 +8,13 @@ import (
 	"standard/web/middleware"
 )
 
+var corsConfig = middleware.DefaultCORSConfig()
+
 func main() {
 	r := web.NewRouter()
+
 	r.UseGlobal(middleware.Logging)
+	r.UseGlobal(middleware.CORS(corsConfig))
 	r.Use(middleware.ErrorHandler)
 
 	userStore := user.NewMemoryStore()
