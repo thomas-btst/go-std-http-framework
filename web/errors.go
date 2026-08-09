@@ -31,3 +31,7 @@ func (e *HTTPError) Error() string {
 
 	return str
 }
+
+func (e *HTTPError) Unwrap() error {
+	return e.Err
+}

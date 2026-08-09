@@ -34,11 +34,18 @@ func (r *Router) UseGlobal(middleware ...Middleware) {
 }
 
 func (r *Router) AddRoute(method HTTPMethod, path string, handler HandlerFunc) {
-	pattern := string(method) + " " + path
+	var pattern string
+	if method == "" {
+		pattern = path
+	} else {
+		pattern = string(method) + " " + path
+	}
+
 	lastHandler := handler
 	for _, m := range slices.Backward(r.routeMiddlewares) {
 		lastHandler = m(lastHandler)
 	}
+
 	r.mux.HandleFunc(pattern, adapter(lastHandler))
 }
 

@@ -25,11 +25,11 @@ func NewHandler(service *Service) *Handler {
 
 func (h *Handler) RegisterRoutes(router *web.Router) {
 	router.Group("/users", func(r *web.Router) {
-		r.AddRoute(web.GET, "/{id}", h.handleGet)
-		r.AddRoute(web.GET, "/", h.handleList)
-		r.AddRoute(web.POST, "/", h.handlePost)
-		r.AddRoute(web.PUT, "/{id}", h.handleUpdate)
-		r.AddRoute(web.DELETE, "/{id}", h.handleDelete)
+		r.GET("/{id}", h.handleGet)
+		r.GET("/", h.handleList)
+		r.POST("/", h.handlePost)
+		r.PUT("/{id}", h.handleUpdate)
+		r.DELETE("/{id}", h.handleDelete)
 	})
 }
 
