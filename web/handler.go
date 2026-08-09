@@ -7,6 +7,8 @@ import (
 
 type HandlerFunc func(*Context) error
 
+type Middleware func(HandlerFunc) HandlerFunc
+
 func adapter(handler HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		context := newContext(r, w)

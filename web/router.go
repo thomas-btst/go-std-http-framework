@@ -13,8 +13,6 @@ import (
 	"time"
 )
 
-type Middleware func(HandlerFunc) HandlerFunc
-
 type Router struct {
 	mux               *http.ServeMux
 	routeMiddlewares  []Middleware
