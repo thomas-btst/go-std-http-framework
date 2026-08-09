@@ -22,7 +22,9 @@ func main() {
 
 	user.NewHandler(userService).RegisterRoutes(r)
 
-	if err := r.ListenAndServe(":8080"); err != nil {
+	server := web.NewServer(":8080", r)
+
+	if err := server.Start(); err != nil {
 		slog.Error("Server Error", slog.Any("err", err))
 	}
 }
