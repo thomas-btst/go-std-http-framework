@@ -62,7 +62,7 @@ func (h *Handler) handleGet(c *web.Context) error {
 		return err
 	}
 
-	return c.Response.WriteJSON(http.StatusOK, toResponse(user))
+	return c.Response.JSON(http.StatusOK, toResponse(user))
 }
 
 func (h *Handler) handleList(c *web.Context) error {
@@ -70,7 +70,7 @@ func (h *Handler) handleList(c *web.Context) error {
 
 	responses := toResponses(users)
 
-	return c.Response.WriteJSON(http.StatusOK, responses)
+	return c.Response.JSON(http.StatusOK, responses)
 }
 
 func (h *Handler) handlePost(c *web.Context) error {
@@ -90,7 +90,7 @@ func (h *Handler) handlePost(c *web.Context) error {
 		return err
 	}
 
-	return c.Response.WriteJSON(http.StatusCreated, toIDResponse(createdUser.ID))
+	return c.Response.JSON(http.StatusCreated, toIDResponse(createdUser.ID))
 }
 
 func (h *Handler) handleUpdate(c *web.Context) error {
@@ -118,9 +118,7 @@ func (h *Handler) handleUpdate(c *web.Context) error {
 		}
 	}
 
-	c.Response.WriteHeader(http.StatusNoContent)
-
-	return nil
+	return c.Response.NoContent()
 }
 
 func (h *Handler) handleDelete(c *web.Context) error {
@@ -137,7 +135,5 @@ func (h *Handler) handleDelete(c *web.Context) error {
 		return err
 	}
 
-	c.Response.WriteHeader(http.StatusNoContent)
-
-	return nil
+	return c.Response.NoContent()
 }

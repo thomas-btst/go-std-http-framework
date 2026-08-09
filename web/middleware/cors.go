@@ -125,8 +125,7 @@ func CORS(config *CORSConfig) web.Middleware {
 
 			if origin == "" {
 				if isPreflight {
-					c.Response.WriteHeader(http.StatusNoContent)
-					return nil
+					return c.Response.NoContent()
 				}
 
 				return next(c)
@@ -153,9 +152,7 @@ func CORS(config *CORSConfig) web.Middleware {
 
 				header.Set("Access-Control-Max-Age", strconv.Itoa(maxAge))
 
-				c.Response.WriteHeader(http.StatusNoContent)
-
-				return nil
+				return c.Response.NoContent()
 			}
 
 			if exposeHeaders != "" {

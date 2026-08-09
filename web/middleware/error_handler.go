@@ -16,7 +16,7 @@ func ErrorHandler(next web.HandlerFunc) web.HandlerFunc {
 		}
 
 		if err, ok := errors.AsType[*web.HTTPError](err); ok {
-			c.Response.WriteError(err.Code, err.Message)
+			c.Response.Error(err.Code, err.Message)
 			return nil
 		}
 
@@ -25,7 +25,7 @@ func ErrorHandler(next web.HandlerFunc) web.HandlerFunc {
 			slog.Any("err", err),
 		)
 
-		c.Response.WriteError(
+		c.Response.Error(
 			http.StatusInternalServerError,
 			http.StatusText(http.StatusInternalServerError),
 		)
