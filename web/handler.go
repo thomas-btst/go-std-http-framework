@@ -9,9 +9,9 @@ type HandlerFunc func(*Context) error
 
 type Middleware func(HandlerFunc) HandlerFunc
 
-func adapter(handler HandlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		context := newContext(r, w)
+func (r *Router) adapter(handler HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, req *http.Request) {
+		context := newContext(req, w, r.validator)
 
 		err := handler(context)
 		if err == nil {
@@ -20,8 +20,8 @@ func adapter(handler HandlerFunc) http.HandlerFunc {
 
 		slog.Error(
 			"CRITICAL: Unhandled error reached adapter",
-			slog.String("method", r.Method),
-			slog.String("path", r.URL.Path),
+			slog.String("method", req.Method),
+			slog.String("path", req.URL.Path),
 			slog.Any("err", err),
 		)
 

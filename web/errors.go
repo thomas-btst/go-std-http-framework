@@ -5,17 +5,23 @@ import (
 )
 
 type HTTPError struct {
-	Code    int
-	Message string
-	Err     error
+	Code    int    `json:"status"`
+	Message string `json:"message"`
+	Err     error  `json:"-"`
+	Details any    `json:"details,omitempty"`
 }
 
-func NewHTTPErrorWithErr(code int, message string, err error) *HTTPError {
+func NewHTTPErrorWithDetails(code int, message string, err error, details any) *HTTPError {
 	return &HTTPError{
 		Code:    code,
 		Message: message,
 		Err:     err,
+		Details: details,
 	}
+}
+
+func NewHTTPErrorWithErr(code int, message string, err error) *HTTPError {
+	return NewHTTPErrorWithDetails(code, message, err, nil)
 }
 
 func NewHTTPError(code int, message string) *HTTPError {

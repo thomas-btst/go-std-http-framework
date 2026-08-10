@@ -10,10 +10,18 @@ type Router struct {
 	mux               *http.ServeMux
 	routeMiddlewares  []Middleware
 	globalMiddlewares []Middleware
+	validator         Validator
+}
+
+func NewRouterWithValidator(validator Validator) *Router {
+	return &Router{
+		mux:       http.NewServeMux(),
+		validator: validator,
+	}
 }
 
 func NewRouter() *Router {
-	return &Router{mux: http.NewServeMux()}
+	return NewRouterWithValidator(NewDefaultValidator())
 }
 
 func (r *Router) Use(middleware ...Middleware) {
@@ -37,13 +45,14 @@ func (r *Router) AddRoute(method HTTPMethod, path string, handler HandlerFunc) {
 		lastHandler = m(lastHandler)
 	}
 
-	r.mux.HandleFunc(pattern, adapter(lastHandler))
+	r.mux.HandleFunc(pattern, r.adapter(lastHandler))
 }
 
 func (r *Router) Group(prefix string, register func(subRouter *Router)) {
 	subRouter := &Router{
 		mux:              http.NewServeMux(),
 		routeMiddlewares: append([]Middleware(nil), r.routeMiddlewares...),
+		validator:        r.validator,
 	}
 
 	register(subRouter)
@@ -61,5 +70,5 @@ func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		lastHandler = m(lastHandler)
 	}
 
-	adapter(lastHandler)(w, req)
+	r.adapter(lastHandler)(w, req)
 }

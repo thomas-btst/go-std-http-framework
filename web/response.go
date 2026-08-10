@@ -49,6 +49,10 @@ func (r *Response) JSON(status int, data any) error {
 	return nil
 }
 
+func (r *Response) HTTPError(err *HTTPError) error {
+	return r.JSON(err.Code, err)
+}
+
 func (r *Response) Error(status int, message string) error {
-	return r.JSON(status, map[string]string{"error": message})
+	return r.HTTPError(NewHTTPError(status, message))
 }

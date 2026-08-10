@@ -2,12 +2,9 @@ package web
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
-
-	"github.com/go-playground/validator/v10"
 )
 
 const (
@@ -16,34 +13,25 @@ const (
 	errFmtInvalidPathInt = "Path parameter '%s' must be a valid integer"
 )
 
-var validate = validator.New(validator.WithRequiredStructEnabled())
-
 type Context struct {
 	*http.Request
-	Response *Response
+	Response  *Response
+	validator Validator
 }
 
-func newContext(r *http.Request, w http.ResponseWriter) *Context {
+func newContext(r *http.Request, w http.ResponseWriter, validator Validator) *Context {
 	return &Context{
-		Request:  r,
-		Response: newResponse(w),
+		Request:   r,
+		Response:  newResponse(w),
+		validator: validator,
 	}
 }
 
 func (c *Context) Validate(request any) error {
-	err := validate.Struct(request)
-	if err == nil {
+	if c.validator == nil {
 		return nil
 	}
-
-	if _, ok := errors.AsType[validator.ValidationErrors](err); ok {
-		return NewHTTPErrorWithErr(http.StatusBadRequest,
-			errMsgInvalidBody,
-			err,
-		) // TODO: display a real error
-	}
-
-	return err
+	return c.validator.Validate(request)
 }
 
 func (c *Context) Body(request any) error {
