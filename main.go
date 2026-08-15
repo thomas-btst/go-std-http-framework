@@ -3,9 +3,9 @@ package main
 import (
 	"log/slog"
 
-	"standard/user"
-	"standard/web"
-	"standard/web/middleware"
+	"github.com/thomas-btst/go-std-http-framework/user"
+	"github.com/thomas-btst/go-std-http-framework/web"
+	"github.com/thomas-btst/go-std-http-framework/web/middleware"
 )
 
 var corsConfig = middleware.DefaultCORSConfig()

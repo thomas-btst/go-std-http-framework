@@ -5,7 +5,7 @@ import (
 	"log/slog"
 	"net/http"
 
-	"standard/web"
+	"github.com/thomas-btst/go-std-http-framework/web"
 )
 
 func ErrorHandler(next web.HandlerFunc) web.HandlerFunc {

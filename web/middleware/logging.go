@@ -5,7 +5,7 @@ import (
 	"log/slog"
 	"time"
 
-	"standard/web"
+	"github.com/thomas-btst/go-std-http-framework/web"
 )
 
 func Logging(next web.HandlerFunc) web.HandlerFunc {

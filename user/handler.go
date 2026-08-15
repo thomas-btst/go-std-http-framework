@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"standard/web"
+	"github.com/thomas-btst/go-std-http-framework/web"
 )
 
 const (

@@ -124,9 +124,9 @@ package main
 import (
 	"log/slog"
 
-	"standard/user"
-	"standard/web"
-	"standard/web/middleware"
+	"github.com/thomas-btst/go-std-http-framework/user"
+	"github.com/thomas-btst/go-std-http-framework/web"
+	"github.com/thomas-btst/go-std-http-framework/web/middleware"
 )
 
 var corsConfig = middleware.DefaultCORSConfig()
@@ -346,7 +346,7 @@ go install golang.org/x/pkgsite/cmd/pkgsite@latest
 pkgsite -http=:6060
 ```
 
-Visit `http://localhost:6060/standard` to browse the API documentation.
+Visit `http://localhost:6060/github.com/thomas-btst/go-std-http-framework` to browse the API documentation.
 
 ## Code Quality & Linting
 

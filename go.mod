@@ -1,4 +1,4 @@
-module standard
+module github.com/thomas-btst/go-std-http-framework
 
 go 1.26.5
 
